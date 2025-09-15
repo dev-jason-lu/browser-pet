@@ -4,23 +4,37 @@ import PetComponent from './components/PetComponent';
 import FloatingPet from './components/FloatingPet';
 import PetSidebar from './components/PetSidebar';
 import { usePetStore } from './store/petStore';
+import { LAppDelegate } from './components/live2d/lappdelegate';
+import * as LAppDefine from './components/live2d/lappdefine';
 
 const BrowserPetGame: React.FC = () => {
   const { initializePet } = usePetStore();
   const [showFloatingPet, setShowFloatingPet] = useState(false);
+  const [showLive2DPet, setShowLive2DPet] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [isGameInitialized, setIsGameInitialized] = useState(false);
   const [petName, setPetName] = useState('');
   const [petType, setPetType] = useState('小猫');
 
-  // 初始化游戏
   useEffect(() => {
-    // 检查是否已经初始化过宠物
-    const savedPet = localStorage.getItem('pet-storage');
-    if (savedPet) {
-      setIsGameInitialized(true);
-    }
+    const script = document.createElement('script');
+    script.src = '/Core/live2dcubismcore.js';
+    script.onload = () => {
+      LAppDelegate.getInstance().initialize();
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
   }, []);
+
+  // 运行逻辑
+  useEffect(() => {
+    if (showLive2DPet && isGameInitialized) {
+      LAppDelegate.getInstance().run();
+    }
+  }, [showLive2DPet, isGameInitialized]);
 
   // 开始游戏
   const startGame = () => {
@@ -47,6 +61,12 @@ const BrowserPetGame: React.FC = () => {
               className="p-2 rounded-full border hover:bg-gray-100 dark:hover:bg-gray-800"
             >
               🐾 {showFloatingPet ? '隐藏悬浮宠物' : '显示悬浮宠物'}
+            </button>
+            <button 
+              onClick={() => setShowLive2DPet(!showLive2DPet)}
+              className="p-2 rounded-full border hover:bg-gray-100 dark:hover:bg-gray-800"
+            >
+              🎭 {showLive2DPet ? '隐藏Live2D宠物' : '显示Live2D宠物'}
             </button>
           </div>
         </header>
@@ -103,10 +123,10 @@ const BrowserPetGame: React.FC = () => {
   );
 
   return (
-    <>
+    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen text-gray-900 dark:text-gray-100">
       {isGameInitialized ? <GameInterface /> : <StartScreen />}
       {showFloatingPet && isGameInitialized && <FloatingPet />}
-    </>
+    </div>
   );
 };
 

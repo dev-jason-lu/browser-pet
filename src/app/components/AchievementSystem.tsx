@@ -90,12 +90,11 @@ const AchievementSystem: React.FC = () => {
       condition: (state) => state.name !== '小宠物',
       isUnlocked: achievements['pet-renamer'] || false
     }
-  ], []);
+  ], [achievements]);
 
   // 检查并解锁成就
   useEffect(() => {
-    const { getState } = usePetStore;
-    const currentState = getState();
+    const currentState = usePetStore.getState();
     
     allAchievements.forEach(achievement => {
       if (!achievement.isUnlocked && achievement.condition(currentState)) {
