@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 浏览器宠物 (Browser Pet)
 
-## Getting Started
+一款基于浏览器的虚拟宠物游戏，让你可以在浏览网页的同时照顾你的虚拟伙伴！
 
-First, run the development server:
+## 📝 项目介绍
+
+浏览器宠物是一款互动性强的虚拟宠物游戏，玩家可以通过浏览器与可爱的虚拟宠物进行互动，包括喂食、玩耍、训练等操作。宠物拥有完整的生理状态系统，会随着时间变化而改变状态，需要你的精心照顾。
+
+## ✨ 核心功能
+
+### 宠物状态系统
+- **饱食度**：宠物需要定期进食，饥饿会影响健康
+- **健康值**：反映宠物的整体健康状况
+- **心情值**：玩耍和互动可以提升宠物心情
+- **能量值**：宠物需要休息来恢复能量
+- **清洁度**：定期清洁保持宠物卫生
+
+### 互动功能
+- **喂食**：为宠物提供食物，增加饱食度
+- **玩耍**：与宠物互动，提升心情值
+- **清洁**：保持宠物清洁，提升健康值
+- **休息**：让宠物睡觉，恢复能量
+- **训练**：训练宠物，提升能力
+- **治疗**：当宠物生病时进行治疗
+
+### 浏览器整合
+- **悬浮窗模式**：宠物可以在浏览器角落显示，支持拖动
+- **侧边栏模式**：提供更详细的宠物信息和操作选项
+- **主页面模式**：完整的游戏界面体验
+
+### 数据持久化
+- 使用IndexedDB本地存储宠物数据
+- 页面刷新或重新打开后保留宠物状态
+
+## 🛠️ 技术栈
+
+- **前端**：Next.js + Tailwind CSS + Turbo + Zustand
+- **后端**：Node.js + Express (计划中)
+- **实时通信**：WebSocket/SSE (计划中)
+- **数据存储**：IndexedDB本地存储
+
+## 🚀 快速开始
+
+### 安装依赖
+
+```bash
+npm install
+```
+
+### 开发模式
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 构建生产版本
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 运行生产版本
 
-## Learn More
+```bash
+npm start
+```
 
-To learn more about Next.js, take a look at the following resources:
+## 🎮 游戏玩法
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. 打开应用，为你的宠物取名字并选择类型
+2. 通过主界面的各种操作按钮与宠物互动
+3. 随时切换悬浮窗或侧边栏模式，方便你在浏览其他内容时也能照顾宠物
+4. 注意观察宠物的状态条，及时满足它的需求
+5. 宠物会随着时间成长和变化，需要持续的照顾
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📚 项目结构
 
-## Deploy on Vercel
+```
+browser-pet/
+├── src/
+│   ├── app/
+│   │   ├── components/   # 组件目录
+│   │   │   ├── PetComponent.tsx   # 宠物主组件
+│   │   │   ├── FloatingPet.tsx    # 悬浮宠物组件
+│   │   │   └── PetSidebar.tsx     # 侧边栏组件
+│   │   ├── store/       # 状态管理
+│   │   │   └── petStore.ts        # 宠物状态store
+│   │   ├── page.tsx     # 主页面
+│   │   ├── layout.tsx   # 布局文件
+│   │   └── globals.css  # 全局样式
+├── public/              # 静态资源
+├── package.json         # 项目配置
+└── README.md            # 项目说明
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🔮 未来规划
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **AI辅助功能**：使用AI分析网页内容，让宠物根据内容做出反应
+2. **多人互动**：支持宠物之间的互动和玩家之间的交流
+3. **宠物定制**：提供更多宠物种类和自定义选项
+4. **小游戏**：增加与宠物一起玩的迷你游戏
+5. **成就系统**：添加游戏成就和排行榜
+
+## 💡 贡献指南
+
+欢迎对项目提出建议或贡献代码！如果你有任何想法或问题，请提交Issue或Pull Request。
+
+## 📄 许可证
+
+本项目采用MIT许可证 - 详情请查看[LICENSE](LICENSE)文件
+
+## 👨‍💻 开发团队
+
+由热爱游戏和前端技术的开发者团队打造
+
+希望你喜欢这款游戏！记得经常回来看看你的小宠物哦～ 🐾
