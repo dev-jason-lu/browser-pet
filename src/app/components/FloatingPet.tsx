@@ -14,7 +14,8 @@ const FloatingPet: React.FC = () => {
     updateState,
     feed,
     play,
-    rest
+    rest,
+    petInteract
   } = usePetStore();
 
   const [position, setPosition] = useState({ x: window.innerWidth - 120, y: 20 });
@@ -22,6 +23,10 @@ const FloatingPet: React.FC = () => {
   const [showActions, setShowActions] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [showTooltip, setShowTooltip] = useState(false);
+  const [isPulsing, setIsPulsing] = useState(false);
+  const [lastClickTime, setLastClickTime] = useState(0);
+  const [isLongPress, setIsLongPress] = useState(false);
+  const longPressTimeout = useRef<NodeJS.Timeout | null>(null);
   
   const petRef = useRef<HTMLDivElement>(null);
 
@@ -34,8 +39,17 @@ const FloatingPet: React.FC = () => {
     return () => clearInterval(interval);
   }, [updateState]);
 
-  // 拖动处理
+  // 拖动处理 - 添加长按检测
   const handleMouseDown = (e: React.MouseEvent) => {
+    // 开始长按检测
+    longPressTimeout.current = setTimeout(() => {
+      setIsLongPress(true);
+      petInteract('pat');
+      // 添加视觉反馈
+      setIsPulsing(true);
+      setTimeout(() => setIsPulsing(false), 500);
+    }, 600);
+
     if (petRef.current) {
       const rect = petRef.current.getBoundingClientRect();
       setOffset({
@@ -44,6 +58,36 @@ const FloatingPet: React.FC = () => {
       });
       setIsDragging(true);
     }
+  };
+
+  // 处理点击和双击
+  const handleClick = () => {
+    // 取消长按计时器
+    if (longPressTimeout.current) {
+      clearTimeout(longPressTimeout.current);
+      longPressTimeout.current = null;
+    }
+
+    // 双击检测
+    const currentTime = Date.now();
+    const timeSinceLastClick = currentTime - lastClickTime;
+    
+    if (timeSinceLastClick < 300) {
+      // 双击 - 兴奋互动
+      petInteract('doubleClick');
+      setIsPulsing(true);
+      setTimeout(() => setIsPulsing(false), 300);
+    } else {
+      // 单击 - 抚摸互动
+      petInteract('pet');
+      // 正常点击时不切换菜单，只在长按后点击才切换
+      if (isLongPress) {
+        setShowActions(!showActions);
+        setIsLongPress(false);
+      }
+    }
+    
+    setLastClickTime(currentTime);
   };
 
   // 监听全局鼠标移动和释放事件
@@ -68,7 +112,23 @@ const FloatingPet: React.FC = () => {
       };
 
       const handleMouseUp = () => {
+        // 如果拖动了一定距离，视为拖拽互动
+        const dragDistance = Math.sqrt(
+          Math.pow(position.x - (window.innerWidth - 120), 2) +
+          Math.pow(position.y - 20, 2)
+        );
+        
+        if (dragDistance > 20) {
+          petInteract('drag');
+        }
+        
         setIsDragging(false);
+        
+        // 清理长按计时器
+        if (longPressTimeout.current) {
+          clearTimeout(longPressTimeout.current);
+          longPressTimeout.current = null;
+        }
       };
 
       document.addEventListener('mousemove', handleMouseMove);
@@ -79,7 +139,16 @@ const FloatingPet: React.FC = () => {
         document.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  }, [isDragging, offset]);
+  }, [isDragging, offset, position, petInteract]);
+
+  // 清理资源
+  useEffect(() => {
+    return () => {
+      if (longPressTimeout.current) {
+        clearTimeout(longPressTimeout.current);
+      }
+    };
+  }, []);
 
   // 获取宠物表情
   const getPetEmotion = () => {
@@ -111,16 +180,21 @@ const FloatingPet: React.FC = () => {
   return (
     <div
       ref={petRef}
-      className={`fixed z-50 w-24 h-30 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 transition-transform duration-200 cursor-move ${isDragging ? 'scale-105' : ''}`}
-      style={{ left: `${position.x}px`, top: `${position.y}px` }}
+      className={`fixed z-50 w-24 h-30 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 transition-transform duration-200 cursor-move ${isDragging ? 'scale-105' : ''} ${isPulsing ? 'pulsing' : ''}`}
+      style={{
+        left: `${position.x}px`,
+        top: `${position.y}px`,
+        cursor: isDragging ? 'grabbing' : 'grab',
+        userSelect: 'none'
+      }}
       onMouseDown={handleMouseDown}
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
-      onClick={() => setShowActions(!showActions)}
+      onClick={handleClick}
     >
       {/* 宠物表情 */}
       <div className="flex justify-center items-center h-20">
-        <div className="text-5xl animate-bounce">{getPetEmotion()}</div>
+        <div className={`text-5xl animate-bounce ${isPulsing ? 'pulse-animation' : ''}`}>{getPetEmotion()}</div>
       </div>
       
       {/* 宠物名字 */}
@@ -161,6 +235,29 @@ const FloatingPet: React.FC = () => {
       )}
     </div>
   );
+
+  // 添加CSS样式
+  const styles = `
+    .floating-pet.pulsing {
+      animation: pulse 0.3s ease-in-out;
+    }
+    
+    .pet-emoji.pulse-animation {
+      transform: scale(1.2);
+      transition: transform 0.3s ease;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+  `;
+
+  // 创建并注入样式
+  const styleSheet = document.createElement('style');
+  styleSheet.type = 'text/css';
+  styleSheet.innerText = styles;
+  document.head.appendChild(styleSheet);
 };
 
 export default FloatingPet;
