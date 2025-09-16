@@ -104,7 +104,7 @@ export const usePetStore = create<PetStore>()(
       isPlaying: false,
       isSick: false,
       lastUpdate: Date.now(),
-      actions: [],
+      actions: [] as { type: string; timestamp: number; description: string }[],
       achievements: {},
       skills: {
         intelligence: 10,
@@ -116,104 +116,104 @@ export const usePetStore = create<PetStore>()(
       experience: 0,
 
       // 喂食操作
-  feed: () => {
-    set((state) => {
-      const newState = {
-        hunger: Math.min(state.hunger + 20, 100),
-        health: Math.min(state.health + 5, 100),
-        actions: [...state.actions, {
-          type: 'feed',
-          timestamp: Date.now(),
-          description: '喂食成功！'
-        }].slice(-10), // 只保留最近10条记录
-        lastUpdate: Date.now()
-      };
+      feed: () => {
+        set((state) => {
+          const newState: Partial<PetState> = {
+            hunger: Math.min(state.hunger + 20, 100),
+            health: Math.min(state.health + 5, 100),
+            actions: [...state.actions, {
+              type: 'feed',
+              timestamp: Date.now(),
+              description: '喂食成功！'
+            }].slice(-10), // 只保留最近10条记录
+            lastUpdate: Date.now()
+          };
 
-      // 检查是否解锁初次喂食成就
-      if (!state.achievements['first-feed']) {
-        setTimeout(() => {
-          usePetStore.getState().unlockAchievement('first-feed');
-        }, 0);
-      }
+          // 检查是否解锁初次喂食成就
+          if (!state.achievements['first-feed']) {
+            setTimeout(() => {
+              usePetStore.getState().unlockAchievement('first-feed');
+            }, 0);
+          }
 
-      // 获得喂食经验
-      setTimeout(() => {
-        usePetStore.getState().gainExperience(5);
-      }, 0);
+          // 获得喂食经验
+          setTimeout(() => {
+            usePetStore.getState().gainExperience(5);
+          }, 0);
 
-      return newState;
-    });
-  },
+          return newState;
+        });
+      },
 
       // 玩耍操作
-  play: () => {
-    set((state) => {
-      if (state.energy < 20) {
-        return state;
-      }
-      
-      const newState = {
-        happiness: Math.min(state.happiness + 25, 100),
-        energy: Math.max(state.energy - 20, 0),
-        isPlaying: true,
-        actions: [...state.actions, {
-          type: 'play',
-          timestamp: Date.now(),
-          description: '玩耍时间！'
-        }].slice(-10),
-        lastUpdate: Date.now()
-      };
+      play: () => {
+        set((state) => {
+          if (state.energy < 20) {
+            return state;
+          }
+          
+          const newState: Partial<PetState> = {
+            happiness: Math.min(state.happiness + 25, 100),
+            energy: Math.max(state.energy - 20, 0),
+            isPlaying: true,
+            actions: [...state.actions, {
+              type: 'play',
+              timestamp: Date.now(),
+              description: '玩耍时间！'
+            }].slice(-10),
+            lastUpdate: Date.now()
+          };
 
-      // 获得玩耍经验
-      setTimeout(() => {
-        usePetStore.getState().gainExperience(10);
-      }, 0);
+          // 获得玩耍经验
+          setTimeout(() => {
+            usePetStore.getState().gainExperience(10);
+          }, 0);
 
-      // 检查是否解锁游戏伙伴成就
-      if (!state.achievements['game-partner']) {
+          // 检查是否解锁游戏伙伴成就
+          if (!state.achievements['game-partner']) {
+            setTimeout(() => {
+              usePetStore.getState().unlockAchievement('game-partner');
+            }, 0);
+          }
+
+          return newState;
+        });
+        
+        // 3秒后结束玩耍状态
         setTimeout(() => {
-          usePetStore.getState().unlockAchievement('game-partner');
-        }, 0);
-      }
-
-      return newState;
-    });
-    
-    // 3秒后结束玩耍状态
-    setTimeout(() => {
-      set(() => ({ isPlaying: false }));
-    }, 3000);
-  },
+          set(() => ({ isPlaying: false }));
+        }, 3000);
+      },
 
       // 清洁操作
-  clean: () => {
-    set((state) => {
-      const newState = {
-        cleanliness: 100,
-        health: Math.min(state.health + 10, 100),
-        actions: [...state.actions, {
-          type: 'clean',
-          timestamp: Date.now(),
-          description: '洗澡真舒服！'
-        }].slice(-10),
-        lastUpdate: Date.now()
-      };
+      clean: () => {
+        set((state) => {
+          const newState: Partial<PetState> = {
+            cleanliness: 100,
+            health: Math.min(state.health + 10, 100),
+            actions: [...state.actions, {
+              type: 'clean',
+              timestamp: Date.now(),
+              description: '洗澡真舒服！'
+            }].slice(-10),
+            lastUpdate: Date.now()
+          };
 
-      // 获得清洁经验
-      setTimeout(() => {
-        usePetStore.getState().gainExperience(5);
-      }, 0);
+          // 获得清洁经验
+          setTimeout(() => {
+            usePetStore.getState().gainExperience(5);
+          }, 0);
 
-      // 检查是否解锁清洁小能手成就
-      if (!state.achievements['clean-freak']) {
-        setTimeout(() => {
-          usePetStore.getState().unlockAchievement('clean-freak');
-        }, 0);
-      }
+          // 检查是否解锁清洁小能手成就
+          if (!state.achievements['clean-freak']) {
+            setTimeout(() => {
+              usePetStore.getState().unlockAchievement('clean-freak');
+            }, 0);
+          }
 
-      return newState;
-    });
-  },
+          return newState;
+        });
+      },
 
       // 休息操作
       rest: () => {
@@ -242,68 +242,68 @@ export const usePetStore = create<PetStore>()(
       },
 
       // 训练操作
-  train: () => {
-    set((state) => {
-      if (state.energy < 30 || state.hunger > 70) {
-        return state;
-      }
-      
-      const newState = {
-        happiness: Math.max(state.happiness - 5, 0),
-        energy: Math.max(state.energy - 30, 0),
-        actions: [...state.actions, {
-          type: 'train',
-          timestamp: Date.now(),
-          description: '训练完成！'
-        }].slice(-10),
-        lastUpdate: Date.now()
-      };
+      train: () => {
+        set((state) => {
+          if (state.energy < 30 || state.hunger > 70) {
+            return state;
+          }
+          
+          const newState: Partial<PetState> = {
+            happiness: Math.max(state.happiness - 5, 0),
+            energy: Math.max(state.energy - 30, 0),
+            actions: [...state.actions, {
+              type: 'train',
+              timestamp: Date.now(),
+              description: '训练完成！'
+            }].slice(-10),
+            lastUpdate: Date.now()
+          };
 
-      // 获得训练经验
-      setTimeout(() => {
-        usePetStore.getState().gainExperience(15);
-      }, 0);
+          // 获得训练经验
+          setTimeout(() => {
+            usePetStore.getState().gainExperience(15);
+          }, 0);
 
-      // 检查是否解锁学习达人成就
-      if (!state.achievements['study-master']) {
-        setTimeout(() => {
-          usePetStore.getState().unlockAchievement('study-master');
-        }, 0);
-      }
+          // 检查是否解锁学习达人成就
+          if (!state.achievements['study-master']) {
+            setTimeout(() => {
+              usePetStore.getState().unlockAchievement('study-master');
+            }, 0);
+          }
 
-      return newState;
-    });
-  },
+          return newState;
+        });
+      },
 
       // 治疗操作
-  heal: () => {
-    set((state) => {
-      const newState = {
-        health: 100,
-        isSick: false,
-        actions: [...state.actions, {
-          type: 'heal',
-          timestamp: Date.now(),
-          description: '治疗成功！'
-        }].slice(-10),
-        lastUpdate: Date.now()
-      };
+      heal: () => {
+        set((state) => {
+          const newState: Partial<PetState> = {
+            health: 100,
+            isSick: false,
+            actions: [...state.actions, {
+              type: 'heal',
+              timestamp: Date.now(),
+              description: '治疗成功！'
+            }].slice(-10),
+            lastUpdate: Date.now()
+          };
 
-      // 获得治疗经验
-      setTimeout(() => {
-        usePetStore.getState().gainExperience(20);
-      }, 0);
+          // 获得治疗经验
+          setTimeout(() => {
+            usePetStore.getState().gainExperience(20);
+          }, 0);
 
-      // 检查是否解锁医生成就
-      if (!state.achievements['pet-doctor']) {
-        setTimeout(() => {
-          usePetStore.getState().unlockAchievement('pet-doctor');
-        }, 0);
-      }
+          // 检查是否解锁医生成就
+          if (!state.achievements['pet-doctor']) {
+            setTimeout(() => {
+              usePetStore.getState().unlockAchievement('pet-doctor');
+            }, 0);
+          }
 
-      return newState;
-    });
-  },
+          return newState;
+        });
+      },
 
       // 互动系统 - 玩家与宠物的实时互动
       petInteract: (interactionType: 'pet' | 'doubleClick' | 'drag' | 'pat') => {
@@ -330,13 +330,13 @@ export const usePetStore = create<PetStore>()(
             return state;
           }
           
-          const newState = { ...state };
+          const newState: Partial<PetState> = { ...state };
           let description = '';
           
           switch (interactionType) {
             case 'pet':
               // 抚摸宠物 - 增加心情值和少量经验
-              newState.happiness = Math.min(newState.happiness + 8, 100);
+              newState.happiness = Math.min(newState.happiness! + 8, 100);
               description = '开心地被抚摸！';
               
               // 有几率获得额外经验
@@ -349,8 +349,8 @@ export const usePetStore = create<PetStore>()(
             
             case 'doubleClick':
               // 双击宠物 - 增加更多心情值
-              newState.happiness = Math.min(newState.happiness + 15, 100);
-              newState.energy = Math.max(newState.energy - 5, 0);
+              newState.happiness = Math.min(newState.happiness! + 15, 100);
+              newState.energy = Math.max(newState.energy! - 5, 0);
               description = '兴奋地跳起来！';
               break;
             
@@ -358,21 +358,21 @@ export const usePetStore = create<PetStore>()(
               // 拖拽宠物 - 小幅度增加心情值，可能降低一点
               const isHappy = Math.random() > 0.3;
               newState.happiness = isHappy 
-                ? Math.min(newState.happiness + 5, 100) 
-                : Math.max(newState.happiness - 3, 0);
+                ? Math.min(newState.happiness! + 5, 100) 
+                : Math.max(newState.happiness! - 3, 0);
               description = isHappy ? '喜欢被拖动！' : '有点晕乎乎的...';
               break;
             
             case 'pat':
               // 轻拍宠物 - 增加心情值和一点健康值
-              newState.happiness = Math.min(newState.happiness + 10, 100);
-              newState.health = Math.min(newState.health + 2, 100);
+              newState.happiness = Math.min(newState.happiness! + 10, 100);
+              newState.health = Math.min(newState.health! + 2, 100);
               description = '被拍拍好舒服！';
               break;
           }
           
           // 记录互动
-          newState.actions = [...newState.actions, {
+          newState.actions = [...state.actions, {
             type: 'interact',
             timestamp: Date.now(),
             description: description
@@ -382,7 +382,7 @@ export const usePetStore = create<PetStore>()(
           
           // 检查是否解锁互动达人成就
           const interactionCount = newState.actions.filter(a => a.type === 'interact').length;
-          if (interactionCount === 5 && !newState.achievements['interaction-master']) {
+          if (interactionCount === 5 && !state.achievements['interaction-master']) {
             setTimeout(() => {
               usePetStore.getState().unlockAchievement('interaction-master');
             }, 0);
